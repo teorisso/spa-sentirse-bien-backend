@@ -16,8 +16,8 @@ class TurnoDao {
     async getTurnoById(turnoId: string): Promise<ITurno | null> {
         try {
             const turno = await Turno.findById(turnoId)
-                .populate("clienteId", "nombre email")
-                .populate("servicioId", "nombre precio descripcion");
+                .populate("cliente", "first_name last_name email") // Fixed field name
+                .populate("servicio", "nombre precio descripcion"); // Fixed field name
             return turno;
         } catch (error) {
             throw new Error("Error fetching turno: " + error);
@@ -48,6 +48,17 @@ class TurnoDao {
         } catch (error) {
             throw new Error("Error deleting turno: " + error);
         }
+    }
+    async getTurnosByUserId(userId: string): Promise<ITurno[]> {
+    try {
+        const turnos = await Turno.find({ cliente: userId })
+            .populate("cliente", "first_name last_name email")
+            .populate("servicio", "nombre precio descripcion");
+        return turnos;
+    } catch (error) {
+        console.error("Error al obtener los turnos del usuario:", error);
+        throw new Error("Error al obtener los turnos del usuario: " + error);
+    }
     }
 }
 

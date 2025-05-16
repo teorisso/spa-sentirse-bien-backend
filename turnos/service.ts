@@ -1,7 +1,7 @@
 import { ITurno } from "./type";
 import { turnoDao } from "./dao";
 
-const { getAllTurnos, getTurnoById, createTurno, editTurno, deleteTurno } = turnoDao;
+const { getAllTurnos, getTurnoById, createTurno, editTurno, deleteTurno, getTurnosByUserId } = turnoDao;
 
 class TurnoService {
     async getTurnos(): Promise<ITurno[]> {
@@ -46,6 +46,14 @@ class TurnoService {
             return deletedTurno;
         } catch (error) {
             throw new Error("Error deleting turno: " + error);
+        }
+    }
+
+    async getUserTurnos(userId: string): Promise<ITurno[]> {
+        try {
+            return await getTurnosByUserId(userId);
+        } catch (error) {
+            throw new Error("Error fetching user turnos: " + error);
         }
     }
 }

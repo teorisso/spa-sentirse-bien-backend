@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { turnoService } from './service';
 import { ITurno } from './type';
 
-const { getTurnos, getTurno, createTurno, editTurno, deleteTurno } = turnoService;
+const { getTurnos, getTurno, getUserTurnos, createTurno, editTurno, deleteTurno } = turnoService;
 
 class TurnoController {
     async getTurnos(req: Request, res: Response) {
@@ -19,6 +19,16 @@ class TurnoController {
         try {
             const turno = await getTurno(id);
             res.status(200).json(turno);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async getUserTurnos(req: Request, res: Response) {
+        try {
+            const userId = req.params.id;
+            const turnos = await getUserTurnos(userId); 
+            res.status(200).json(turnos);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
         }
