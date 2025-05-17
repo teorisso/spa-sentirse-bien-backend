@@ -1,4 +1,4 @@
-type UserRole = "admin" | "cliente" | undefined;
+type UserRole = "admin" | "cliente" | "profesional" | undefined;
 
 export interface IUser {
 first_name: string;
