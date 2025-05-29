@@ -3,13 +3,13 @@ import { turnoController } from "./controller";
 
 const turnoRouter = express.Router();
 
-const { getTurnos, getTurno, getUserTurnos,createTurno, editTurno, deleteTurno } = turnoController;
+const { getTurnos, getTurno, getUserTurnos, createTurno, editTurno, deleteTurno } = turnoController;
 
 turnoRouter.get("/", getTurnos);
-turnoRouter.get("/user/:id", getUserTurnos); // More specific route first
-turnoRouter.get("/:id", getTurno);          // Generic parameter route second
-turnoRouter.post("/create", createTurno);
-turnoRouter.delete("/delete/:id", deleteTurno);
+turnoRouter.post("/create", createTurno);   // ✅ Mover ANTES de /:id
+turnoRouter.get("/user/:id", getUserTurnos);
 turnoRouter.put("/edit/:id", editTurno);
+turnoRouter.delete("/delete/:id", deleteTurno);
+turnoRouter.get("/:id", getTurno);          // ✅ Mover AL FINAL
 
 export default turnoRouter;
