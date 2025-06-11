@@ -4,10 +4,15 @@
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node server.ts"
+    "build": "tsc",
+    "dev": "ts-node server.ts",
+    "start": "node dist/server.js"
   },
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "20.x"
+  },
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
