@@ -3,6 +3,7 @@ import { userService } from "./service";
 import User from "./model";
 
 const { getUser, getUsers, createUser, loginUser } = userService;
+const { loginGoogle } = userService;
 
 export const userController = {
     async getUsers(req: Request, res: Response) {
@@ -53,6 +54,16 @@ export const userController = {
             res.status(200).send(user);
         } catch (error) {
             res.status(500).send(error);
+        }
+    },
+    async loginGoogle(req: Request, res: Response) {
+        try {
+            const { id_token } = req.body;
+            const result = await loginGoogle(id_token);
+            res.status(200).send(result);
+        } catch (error) {
+            console.error('Google login error:', error);
+            res.status(500).send({ message: 'Google login failed' });
         }
     },
 };

@@ -95,6 +95,41 @@ class UserService {
             throw Error((error as Error).message);
         }
     }
+    async loginGoogle(idToken: string) {
+        const { OAuth2Client } = await import('google-auth-library');
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        const ticket = await client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
+        const payload = ticket.getPayload();
+        if (!payload) throw new Error('Token inválido');
+
+        const email = payload.email!;
+        let user = await getUserByMail(email);
+
+        if (!user) {
+            // crear usuario básico
+            const names = (payload.name || '').split(' ');
+            user = await createUser({
+                email,
+                first_name: names[0] || 'Google',
+                last_name: names.slice(1).join(' ') || 'User',
+                password: Math.random().toString(36),
+            } as any);
+        }
+
+        if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET missing');
+        const token = sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+
+        return {
+            token,
+            user: {
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                role: user.role,
+                is_admin: user.is_admin,
+            },
+        };
+    }
 }
 
 export const userService = new UserService();

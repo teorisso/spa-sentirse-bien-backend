@@ -6,6 +6,7 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import dbconnect from './config/db';
 import routes from './routes';
+import { sendMail } from './utils/mailer';
 
 // Extend Express Request interface
 declare global {
@@ -84,7 +85,19 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // Connect to database
 dbconnect();
-
+app.get('/api/test-email', async (_req, res) => {
+  try {
+    await sendMail({
+      to: process.env.GOOGLE_EMAIL!,          // tu misma cuenta
+      subject: 'Prueba OAuth2 ✔',
+      html: '<h1>¡Funciona Nodemailer con OAuth2!</h1>',
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fallo envío' });
+  }
+});
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://${HOST}:${PORT}`);
