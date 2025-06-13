@@ -3,6 +3,7 @@ import { IPayment } from "./type";
 import Turno from "../turnos/model";
 import User from "../users/model";
 import { sendEmail } from "../utils/resendMailer";
+import { buildPaymentReceipt } from "../utils/templates/paymentReceipt";
 
 const { createPayment, getPaymentById, getPayments } = paymentDao;
 
@@ -22,18 +23,27 @@ class PaymentService {
             const cliente = await User.findById(payload.cliente);
 
             if (cliente?.email) {
-                const html = `
-                    <h2>Comprobante de Pago – Spa Sentirse Bien</h2>
-                    <p>Hola ${cliente.first_name}, ¡gracias por tu pago!</p>
-                    <p>Monto abonado: <strong>$${payload.amount}</strong></p>
-                    <p style="font-size:12px;color:#666;">Fecha: ${new Date().toLocaleString("es-AR")}</p>
-                    <hr/>
-                    <p style="font-size:12px;color:#444;">Este es un comprobante automático, no responder a este correo.</p>
-                `;
+                // Obtener detalle de turnos
+                const turnosInfo = await Turno.find({ _id: { $in: payload.turnos } })
+                  .populate('servicio', 'nombre')
+                  .lean();
+
+                const items = turnosInfo.map((t: any) => ({
+                  servicio: t.servicio?.nombre || 'Servicio',
+                  fecha: new Date(t.fecha).toLocaleDateString('es-AR'),
+                  hora: t.hora,
+                }));
+
+                const html = buildPaymentReceipt(
+                  cliente.first_name,
+                  payload.amount,
+                  new Date().toLocaleString("es-AR"),
+                  items
+                );
 
                 await sendEmail({
                     to: cliente.email,
-                    subject: "Comprobante de pago – Spa Sentirse Bien",
+                    subject: "Comprobante de Pago – Spa Sentirse Bien",
                     html,
                 });
             }
